@@ -1,6 +1,6 @@
 library(nicholsonppp)
 library(ff)
-L <- sim.drift.selection()
+L <- sim.drift.selection(array=ff,loci=1,p.neutral=1/2)
 e <- list(freq=list(L$sim,c("locus","population","generation")))
 df <- L$s[,6:17]
 e <- c(e,list(color=list(ff(unlist(df),dim=dim(df)),c("locus","population"))))
@@ -16,7 +16,8 @@ sapply(e,function(l)l[[2]])
 
 
 ## all populations for a given locus
-gd(e,"color",locus=5)
-
+col <- gd(e,"color",locus=5)
 ## Example: return all frequencies for a given locus
-gd(e,"freq",locus=5)
+freq <- gd(e,"freq",locus=5)
+## This should generate an allele frequency over time plot:
+myplot(freq~generation|locus,e,groups=population)
