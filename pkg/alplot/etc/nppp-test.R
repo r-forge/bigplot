@@ -1,10 +1,10 @@
 library(nicholsonppp)
 library(ff)
 L <- sim.drift.selection(array=ff,loci=1,p.neutral=1/2)
-e <- list(freq=list(L$sim,c("locus","population","generation")))
 df <- L$s[,6:17]
-e <- c(e,list(color=list(ff(unlist(df),dim=dim(df)),c("locus","population"))))
-for(N in c("s","type","ancestral","S"))e <- c(e,structure(list(list(L$s[,N],"locus")),names=N))
+colors <- ff(unlist(df),dim=dim(df),dimnames=list(locus=NULL,population=NULL))
+e <- list(freq=L$sim,color=colors)
+for(N in c("s","type","ancestral","S"))e <- c(e,structure(list(array(L$s[,N],dim=nrow(L$s),dimnames=list(locus=NULL))),names=N))
 ## describe this crazy object we have created:
 sapply(e,function(l){x <- l[[1]];list(length(x),dim(x),mode(x),class(x))})
 str(e)
