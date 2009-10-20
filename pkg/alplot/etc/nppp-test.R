@@ -16,8 +16,8 @@ str(lapply(e,dimnames))
 
 
 ## all populations for a given locus
-col <- gd(e,"color",locus=5)
+col <- gd(e,"color",list(locus=5))
 ## Example: return all frequencies for a given locus
-freq <- gd(e,"freq",locus=5)
+freq <- gd(e,"freq",list(locus=5))
 ## This should generate an allele frequency over time plot:
-myplot(freq~generation|locus,e,groups=population)
+myplot(freq~generation|locus,e,groups=population,type="l")
