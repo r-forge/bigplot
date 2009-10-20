@@ -6,9 +6,9 @@ colors <- ff(unlist(df),dim=dim(df),dimnames=list(locus=NULL,population=NULL))
 e <- list(freq=L$sim,color=colors)
 for(N in c("s","type","ancestral","S"))e <- c(e,structure(list(array(L$s[,N],dim=nrow(L$s),dimnames=list(locus=NULL))),names=N))
 ## describe this crazy object we have created:
-sapply(e,function(l){x <- l[[1]];list(length(x),dim(x),mode(x),class(x))})
+sapply(e,function(x)list(length(x),dim(x),mode(x),class(x)))
 str(e)
-sapply(e,function(l)l[[2]])
+str(lapply(e,dimnames))
 ## now make a function that constructs a minimal lattice df, with ids,
 ## appropriate prepanel,panel,etc. functions, etc.
 

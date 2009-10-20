@@ -1,10 +1,10 @@
-dnames <- function(x)unlist(structure(lapply(e,ddnames),names=NULL))
-vnames <- function(x)unique(c(dnames(x),names(x)))
-ddnames <- function(x){
-  y=dim(x[[1]])
-  if(is.null(y))y=length(x[[1]])
-  structure(y,names=x[[2]])
+ldnames <- function(x)
+  lapply(x,function(a)structure(dim(a),names=names(dimnames(a))))
+alldims <- function(y){
+  x <- ldnames(y)
+  structure(unlist(x,use.names=FALSE),names=unlist(lapply(x,names)))
 }
+vnames <- function(x)unique(c(dnames(x),names(x)))
 gd <- function # Get data
 ### Specify variables to query and return
 (al,
@@ -14,14 +14,12 @@ gd <- function # Get data
  ...
 ### Query terms.
  ){
-  L <- al[[vars]]
-  if(is.null(L))return(1:(dnames(x)[vars]))
-  a <- L[[1]]
-  dim.var.names <- L[[2]]
+  a <- al[[vars]]
+  if(is.null(a))return(1:(alldims(al)[vars]))
   terms <- list(...)
   for(sub.var in names(terms)){
     val <- terms[[sub.var]]
-    i <- which(sub.var==dim.var.names)
+    i <- which(sub.var==names(dimnames(a)))
     elements <- (1:dim(a)[i])==val
     arglist <- c(list(a),rep(TRUE,length(dim(a))))
     arglist[[i+1]] <- elements
