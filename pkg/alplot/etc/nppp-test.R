@@ -1,6 +1,6 @@
 library(nicholsonppp)
-library(ff)
-L <- sim.drift.selection(array=ff,loci=1,p.neutral=1/2)
+##library(ff)
+##L <- sim.drift.selection(array=ff,loci=1,p.neutral=1/2)
 df <- L$s[,6:17]
 colors <- ff(unlist(df),dim=dim(df),dimnames=list(locus=NULL,population=NULL))
 e <- list(freq=L$sim,color=colors)
@@ -13,7 +13,9 @@ str(lapply(e,dimnames))
 ## appropriate prepanel,panel,etc. functions, etc.
 
 ## need to find an R function for doing this programmatically [,,foo,]
-
+ldnames(e)
+alldims(e)
+vnames(e)
 
 ## all populations for a given locus
 col <- gd(e,"color",list(locus=5))
