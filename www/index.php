@@ -43,7 +43,50 @@ echo $contents; } ?>
 
 <!-- end of project description -->
 
-<p> No content added. </p>
+<p> The idea of this project is simply to create plottable data
+structures that are more storage efficient than the data frames which
+are the standard inputs to lattice/ggplot2 plot functions.</p>
+
+<p>There are 2 ideas I am currently exploring in this
+project. Plotting directly from an external database system, and
+plotting based on a list of arrays. Let's see an example of how an
+array list can work to plot the same data set more efficiently.</p>
+
+<pre>
+data(BodyWeight,package="nlme")
+m <- with(BodyWeight,matrix(weight,byrow=TRUE,
+                            ncol=nlevels(as.factor(Time)),
+                            nrow=nlevels(Rat)))
+dimnames(m) <- list(Rat=NULL,t=NULL)
+al <- list(weight=m,
+           Time=array(unique(BodyWeight$Time),dimnames=list(t=NULL)),
+           Diet=array(subset(BodyWeight,Time==1)$Diet,dimnames=list(Rat=NULL)))
+excess <- as.numeric(object.size(BodyWeight)/object.size(al))
+print(excess)
+[1] 3.09726
+</pre>
+
+<p>It takes a bit of manual work to convert the data frame to the
+correct array list format that is required to plot, but the end result
+is that the same data take up 3 times less space. Since all the
+information is preserved, we can still plot it using lattice and the
+wrapper function myplot:</p>
+
+<pre>
+xyplot(weight~Time|Diet,BodyWeight,groups=Rat,layout=c(3,1),type="l")
+myplot(weight~Time|Diet,al,groups=Rat,layout=c(3,1),type="l")
+</pre>
+
+<img src="long.png" alt="longitudinal data" />
+
+<p>The basic idea behind the myplot function is that we construct a
+minimal dummy data frame for passing as input to the usual xyplot
+function. Then, for each call to panel.groups, we bring the real
+data into memory to plot.</p>
+
+<p>This idea can be extended to use ff arrays or an external sql
+database system, instead of array lists. These options have the
+potential to be even less taxing on R's memory usage.</p>
 
 <p> The <strong>project summary page</strong> you can find <a href="http://<?php echo $domain; ?>/projects/<?php echo $group_name; ?>/"><strong>here</strong></a>. </p>
 
