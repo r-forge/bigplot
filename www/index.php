@@ -53,36 +53,37 @@ plotting based on a list of arrays. Let's see an example of how an
 array list can work to plot the same data set more efficiently.</p>
 
 <pre>
+install.packages("alplot",repos="http://r-forge.r-project.org")
+library(alplot)
 data(BodyWeight,package="nlme")
-m <- with(BodyWeight,matrix(weight,byrow=TRUE,
-                            ncol=nlevels(as.factor(Time)),
-                            nrow=nlevels(Rat)))
-dimnames(m) <- list(Rat=NULL,t=NULL)
-al <- list(weight=m,
-           Time=array(unique(BodyWeight$Time),dimnames=list(t=NULL)),
-           Diet=array(subset(BodyWeight,Time==1)$Diet,dimnames=list(Rat=NULL)))
+attach(BodyWeight)
+al <- 
+  arraylist(weight=t(narray(weight,Time,Rat)),
+            time=narray(unique(Time),Time),
+            Diet=narray(factor(Diet[Time==1]),Rat))
+detach(BodyWeight)
 excess <- as.numeric(object.size(BodyWeight)/object.size(al))
 print(excess)
-[1] 3.09726
+[1] 2.936364
 </pre>
 
 <p>It takes a bit of manual work to convert the data frame to the
 correct array list format that is required to plot, but the end result
 is that the same data take up 3 times less space. Since all the
 information is preserved, we can still plot it using lattice and the
-wrapper function myplot:</p>
+plot method for arraylist objects:</p>
 
 <pre>
-xyplot(weight~Time|Diet,BodyWeight,groups=Rat,layout=c(3,1),type="l")
-myplot(weight~Time|Diet,al,groups=Rat,layout=c(3,1),type="l")
+xyplot(weight~Time|Diet,BodyWeight,groups=Rat,type="l",layout=c(3,1))
+plot(al,weight~time|Diet,groups=Rat,type="l",layout=c(3,1))
 </pre>
 
 <img src="long.png" alt="longitudinal data" />
 
-<p>The basic idea behind the myplot function is that we construct a
-minimal dummy data frame for passing as input to the usual xyplot
-function. Then, for each call to panel.groups, we bring the real
-data into memory to plot.</p>
+<p>The basic idea behind the arraylist plot method is that we
+construct a minimal dummy data frame for passing as input to the usual
+xyplot function. Then, for each call to panel.groups, we bring the
+real data into memory to plot.</p>
 
 <p>This idea can be extended to use ff arrays or an external sql
 database system, instead of array lists. These options have the
