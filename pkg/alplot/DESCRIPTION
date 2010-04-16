@@ -7,3 +7,4 @@ Title: Plot array lists
 Description: Storing data in array list format is more memory-efficient than data frame format. This package enables easy construction and plotting of these array list data structures.
 Imports: lattice
 Depends: lattice
+Suggests: latticeExtra
