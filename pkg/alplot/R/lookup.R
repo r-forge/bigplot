@@ -1,5 +1,38 @@
+narray <- function # Named array
+### Shortcut function for creating an array with dimnames.
+(x, ##<< Data to fill array.
+ ...  ##<< dimnames.
+ ){
+  n <- as.character(match.call()[-(1:2)])
+  dn <- sapply(n,function(x)NULL)
+  thedim <-
+    if(length(n)==1)length(x)
+    else sapply(list(...),function(x)nlevels(as.factor(x)))
+  array(x,thedim,dn)
+}
+arraylist <- function
+### Make a new array list, which is just a special type of list where
+### each element has a name that corresponds to the variable's
+### name. Each element should be an array with dimnames that match the
+### variable names that run along the edges of the array.
+(...){
+  L <- list(...)
+  class(L) <- c("arraylist",class(L))
+  L
+}
+### Print method for arraylist objects.
+print.arraylist <- function(x,...){
+  ndim <- sapply(x,function(x)length(dim(x)))
+  class(x) <- "list"
+  nmat <- cbind(names(al),lapply(ldnames(al),names))
+  l <- ndim==1
+  names(x)[l] <- apply(nmat[l,],1,paste,collapse=" ")
+  print(x)
+}
+### Get dimnames of arraylist elements.
 ldnames <- function(x)
   lapply(x,function(a)structure(dim(a),names=names(dimnames(a))))
+### Get dimnames and sizes for arraylists.
 alldims <- function(y){
   x <- ldnames(y)
   structure(unlist(x,use.names=FALSE),names=unlist(lapply(x,names)))
@@ -43,32 +76,53 @@ gd <- function # Get data
   }
   a
 }
-myplot <- function(x,data,...){
-  L1 <- as.list(x)
-  yvar <- as.character(L1[[2]])
-  L2 <- as.list(L1[[3]])
-  xvar <- as.character(L2[[2]])
-  cond <- as.character(L2[[3]])
-  cond.vals <- structure(unique(gd(data,cond)),dimnames=NULL)
+plot.arraylist <- function
+### Plot an arraylist using efficient lattice panel functions.
+(x,
+### The arraylist.
+ f,
+### lattice plot formula.
+ lattice.fun=NULL,
+### Lattice plot function to call. default will be xyplot.
+ ...
+### Other arguments to the lattice plot function.
+ ){
+  lattice.fun.name <-
+    if(is.null(lattice.fun))"xyplot"
+    else as.character(match.call()$lattice.fun)
+  panel.fun <- get(paste("panel.",lattice.fun.name,sep=""))
+  lattice.fun <- get(lattice.fun.name)
+  parsed <-
+    gsub("([^~ ]*) *~ *([^| ]+) *[|] *(\\w+) *","\\1\n\\2\n\\3",deparse(f))
+  vars <- strsplit(parsed,split="\n")[[1]]
+  yvar <- vars[1]
+  xvar <- vars[2]
+  cond <- vars[3]
+  cond.vals <- structure(unique(gd(x,cond)),dimnames=NULL)
   gvar <- as.character(match.call()$groups)
-  g.vals <- gd(data,gvar)
-  newdata <- adply(cond.vals,1,function(v){
+  newdata <- lapply(seq_along(cond.vals),function(i){
+    v <- cond.vals[i]
     this <- structure(list(v),names=cond)
-    getsub <- function(VAR)range(gd(data,VAR,this))
-    data.frame(getsub(xvar),getsub(yvar),gd(data,gvar,this))
+    getsub <- function(VAR)range(gd(x,VAR,this))
+    d <- data.frame(v,getsub(xvar),gd(x,gvar,this))
+    if(yvar!="")d <- cbind(d,getsub(yvar))
+    d
   })
+  newdata <- do.call(rbind,newdata)
   newdata[,1] <- factor(newdata[,1])
-  names(newdata) <- c(cond,xvar,yvar,gvar)
+  newnames <- c(cond,xvar,gvar)
+  if(yvar!="")newnames <- c(newnames,yvar)
+  names(newdata) <- newnames
   panel.groups <- function(subscripts,...){
     lev <- newdata[subscripts,cond][1]
     gval <- newdata[subscripts,gvar][1]
     this <- structure(list(lev,gval),names=c(cond,gvar))
-    lookup <- function(VAR)gd(data,VAR,this)
+    lookup <- function(VAR)gd(x,VAR,this)
     m <- match.call()
     m$x <- lookup(xvar)
-    m$y <- lookup(yvar)
-    m[[1]] <- panel.xyplot
+    if(yvar!="")m$y <- lookup(yvar)
+    m[[1]] <- panel.fun
     eval(m)
   }
-  xyplot(x,newdata,...,panel=panel.superpose,panel.groups=panel.groups)
+  lattice.fun(f,newdata,...,panel=panel.superpose,panel.groups=panel.groups)
 }

@@ -1,0 +1,9 @@
+Package: alplot
+Maintainer: Toby Dylan Hocking <toby.hocking@inria.fr>
+Author: Toby Dylan Hocking
+Version: 1.0
+License: GPL-3
+Title: Plot array lists
+Description: Storing data in array list format is more memory-efficient than data frame format. This package enables easy construction and plotting of these array list data structures.
+Imports: lattice
+Depends: lattice
