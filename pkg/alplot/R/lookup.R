@@ -8,7 +8,9 @@ narray <- function # Named array
   thedim <-
     if(length(n)==1)length(x)
     else sapply(list(...),function(x)nlevels(as.factor(x)))
-  array(x,thedim,dn)
+  a <- array(x,thedim,dn)
+  class(a) <- c("narray",class(a))
+  a
 }
 arraylist <- function
 ### Make a new array list, which is just a special type of list where
@@ -20,13 +22,10 @@ arraylist <- function
   class(L) <- c("arraylist",class(L))
   L
 }
-### Print method for arraylist objects.
-print.arraylist <- function(x,...){
-  ndim <- sapply(x,function(x)length(dim(x)))
-  class(x) <- "list"
-  nmat <- cbind(names(al),lapply(ldnames(al),names))
-  l <- ndim==1
-  names(x)[l] <- apply(nmat[l,],1,paste,collapse=" ")
+### Print method for narray objects.
+print.narray <- function(x,...){
+  if(length(dimnames(x))==1)cat(names(dimnames(x)),"\n")
+  class(x) <- "array"
   print(x)
 }
 ### Get dimnames of arraylist elements.
