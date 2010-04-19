@@ -11,7 +11,8 @@ Version: \tab 1.0\cr
 License: \tab GPL-3\cr
 Title: \tab Plot array lists\cr
 Imports: \tab lattice\cr
-Depends: \tab lattice\cr}
+Depends: \tab lattice\cr
+Suggests: \tab latticeExtra, nlme\cr}
 }
 \author{Toby Dylan Hocking <toby.hocking@inria.fr>}
 

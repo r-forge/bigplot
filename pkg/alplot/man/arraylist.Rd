@@ -35,5 +35,5 @@ print(alplot)
 require(latticeExtra)
 usual <- xyplot(weight~Time|Diet,BodyWeight,groups=Rat,type="l",layout=c(3,1))
 c(arraylist=alplot,data.frame=usual)
-plot(al,~weight|time,densityplot,groups=Diet)
+##plot(al,~weight|time,densityplot,groups=Diet)
 }
